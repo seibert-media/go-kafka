@@ -29,7 +29,9 @@ type hasSchema interface {
 	Schema() string
 }
 
-func (s *Registry) SchemaId(subject string, object hasSchema) (uint32, error) {
+func (s *Registry) SchemaId(subject string, object interface {
+	Schema() string
+}) (uint32, error) {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 	if s.cache == nil {
