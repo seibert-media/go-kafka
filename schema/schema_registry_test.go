@@ -16,15 +16,13 @@ func TestRegistryReturnSchemaId(t *testing.T) {
 		StatusCode: 200,
 		Body:       ioutil.NopCloser(bytes.NewBufferString(`{"id":42}`)),
 	}, nil)
-	object := &mocks.HasSchema{}
-	object.SchemaReturns("schema-1")
 	var expectedSchemaId uint32 = 42
 	subject := "mytopic-value"
 	schemaRegistry := schema.Registry{
 		SchemaRegistryUrl: "http://schema-registry.example.com",
 		HttpClient:        httpClient,
 	}
-	schemaId, err := schemaRegistry.SchemaId(subject, object)
+	schemaId, err := schemaRegistry.SchemaId(subject, "schema-1")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

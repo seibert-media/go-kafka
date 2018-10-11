@@ -24,20 +24,14 @@ type Registry struct {
 	cache map[string]uint32
 }
 
-//go:generate counterfeiter -o ../mocks/has_schema.go --fake-name HasSchema . hasSchema
-type hasSchema interface {
-	Schema() string
-}
-
-func (s *Registry) SchemaId(subject string, object interface {
-	Schema() string
-}) (uint32, error) {
+// SchemaId return the id for the given schema json
+func (s *Registry) SchemaId(subject string, schema string) (uint32, error) {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 	if s.cache == nil {
 		s.cache = make(map[string]uint32)
 	}
-	id, ok := s.cache[object.Schema()]
+	id, ok := s.cache[schema]
 	if ok {
 		glog.V(2).Infof("cache hit return %d", id)
 		return id, nil
@@ -45,7 +39,7 @@ func (s *Registry) SchemaId(subject string, object interface {
 	input := struct {
 		Schema string `json:"schema"`
 	}{
-		Schema: object.Schema(),
+		Schema: schema,
 	}
 	body := &bytes.Buffer{}
 	if err := json.NewEncoder(body).Encode(input); err != nil {
@@ -73,7 +67,7 @@ func (s *Registry) SchemaId(subject string, object interface {
 	if output.Id == 0 {
 		return 0, errors.New("get id from schema registry failed")
 	}
-	s.cache[object.Schema()] = output.Id
+	s.cache[schema] = output.Id
 	glog.V(2).Infof("got %d from schema registry", output.Id)
 	return output.Id, nil
 }
