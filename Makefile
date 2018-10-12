@@ -10,3 +10,7 @@ format:
 generate:
 	go get github.com/maxbrunsfeld/counterfeiter
 	go generate ./...
+
+addlicense:
+	go get github.com/google/addlicense
+	addlicense -c "//SEIBERT/MEDIA GmbH" -y 2018 -l mit ./schema/*.go
