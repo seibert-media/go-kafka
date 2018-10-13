@@ -18,6 +18,7 @@ type OffsetConsumer struct {
 	MessageHandler MessageHandler
 	KafkaBrokers   string
 	KafkaTopic     string
+	KafkaGroup     string
 }
 
 func (o *OffsetConsumer) Consume(ctx context.Context) error {
@@ -40,6 +41,12 @@ func (o *OffsetConsumer) Consume(ctx context.Context) error {
 	}
 	defer consumer.Close()
 
+	offsetManager, err := sarama.NewOffsetManagerFromClient(o.KafkaGroup, client)
+	if err != nil {
+		return errors.Wrapf(err, "create offsetManager for group %s failed", o.KafkaGroup)
+	}
+	defer offsetManager.Close()
+
 	partitions, err := consumer.Partitions(o.KafkaTopic)
 	if err != nil {
 		return errors.Wrapf(err, "get partitions for topic %s failed", o.KafkaTopic)
@@ -57,7 +64,18 @@ func (o *OffsetConsumer) Consume(ctx context.Context) error {
 			glog.V(1).Infof("consume topic %s partition %d started", o.KafkaTopic, partition)
 			defer glog.V(1).Infof("consume topic %s partition %d finished", o.KafkaTopic, partition)
 
-			partitionConsumer, err := consumer.ConsumePartition(o.KafkaTopic, partition, sarama.OffsetOldest)
+			partitionOffsetManager, err := offsetManager.ManagePartition(o.KafkaTopic, partition)
+			if err != nil {
+				glog.Warningf("create partitionOffsetManager for topic %s failed: %v", o.KafkaTopic, err)
+				cancel()
+				return
+			}
+			defer partitionOffsetManager.Close()
+
+			nextOffset, metadata := partitionOffsetManager.NextOffset()
+			glog.V(2).Infof("offset: %d %s", nextOffset, metadata)
+
+			partitionConsumer, err := consumer.ConsumePartition(o.KafkaTopic, partition, nextOffset)
 			if err != nil {
 				glog.Warningf("create partitionConsumer for topic %s failed: %v", o.KafkaTopic, err)
 				cancel()
@@ -80,6 +98,7 @@ func (o *OffsetConsumer) Consume(ctx context.Context) error {
 						glog.V(1).Infof("consume message %d failed: %v", msg.Offset, err)
 						continue
 					}
+					partitionOffsetManager.MarkOffset(msg.Offset+1, "")
 					glog.V(2).Infof("message %d consumed successful", msg.Offset)
 				}
 			}
