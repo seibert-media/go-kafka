@@ -99,7 +99,7 @@ func (o *OffsetConsumer) Consume(ctx context.Context) error {
 						continue
 					}
 					partitionOffsetManager.MarkOffset(msg.Offset+1, "")
-					glog.V(2).Infof("message %d consumed successful", msg.Offset)
+					glog.V(3).Infof("message %d consumed successful", msg.Offset)
 				}
 			}
 		}(partition)
