@@ -15,9 +15,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate counterfeiter -o ../mocks/http_client.go --fake-name HttpClient . HttpClient
+type HttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type Registry struct {
 	SchemaRegistryUrl string
-	HttpClient        httpClient
+	HttpClient        HttpClient
 
 	mux   sync.Mutex
 	cache map[string]uint32

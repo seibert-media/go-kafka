@@ -2,15 +2,17 @@
 package mocks
 
 import (
-	"net/http"
-	"sync"
+	http "net/http"
+	sync "sync"
+
+	schema "github.com/seibert-media/go-kafka/schema"
 )
 
 type HttpClient struct {
-	DoStub        func(req *http.Request) (*http.Response, error)
+	DoStub        func(*http.Request) (*http.Response, error)
 	doMutex       sync.RWMutex
 	doArgsForCall []struct {
-		req *http.Request
+		arg1 *http.Request
 	}
 	doReturns struct {
 		result1 *http.Response
@@ -24,21 +26,22 @@ type HttpClient struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *HttpClient) Do(req *http.Request) (*http.Response, error) {
+func (fake *HttpClient) Do(arg1 *http.Request) (*http.Response, error) {
 	fake.doMutex.Lock()
 	ret, specificReturn := fake.doReturnsOnCall[len(fake.doArgsForCall)]
 	fake.doArgsForCall = append(fake.doArgsForCall, struct {
-		req *http.Request
-	}{req})
-	fake.recordInvocation("Do", []interface{}{req})
+		arg1 *http.Request
+	}{arg1})
+	fake.recordInvocation("Do", []interface{}{arg1})
 	fake.doMutex.Unlock()
 	if fake.DoStub != nil {
-		return fake.DoStub(req)
+		return fake.DoStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.doReturns.result1, fake.doReturns.result2
+	fakeReturns := fake.doReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *HttpClient) DoCallCount() int {
@@ -47,13 +50,22 @@ func (fake *HttpClient) DoCallCount() int {
 	return len(fake.doArgsForCall)
 }
 
+func (fake *HttpClient) DoCalls(stub func(*http.Request) (*http.Response, error)) {
+	fake.doMutex.Lock()
+	defer fake.doMutex.Unlock()
+	fake.DoStub = stub
+}
+
 func (fake *HttpClient) DoArgsForCall(i int) *http.Request {
 	fake.doMutex.RLock()
 	defer fake.doMutex.RUnlock()
-	return fake.doArgsForCall[i].req
+	argsForCall := fake.doArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *HttpClient) DoReturns(result1 *http.Response, result2 error) {
+	fake.doMutex.Lock()
+	defer fake.doMutex.Unlock()
 	fake.DoStub = nil
 	fake.doReturns = struct {
 		result1 *http.Response
@@ -62,6 +74,8 @@ func (fake *HttpClient) DoReturns(result1 *http.Response, result2 error) {
 }
 
 func (fake *HttpClient) DoReturnsOnCall(i int, result1 *http.Response, result2 error) {
+	fake.doMutex.Lock()
+	defer fake.doMutex.Unlock()
 	fake.DoStub = nil
 	if fake.doReturnsOnCall == nil {
 		fake.doReturnsOnCall = make(map[int]struct {
@@ -98,3 +112,5 @@ func (fake *HttpClient) recordInvocation(key string, args []interface{}) {
 	}
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
+
+var _ schema.HttpClient = new(HttpClient)
