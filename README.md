@@ -26,3 +26,17 @@ schemaId, err := schemaRegistry.SchemaId(subject, schemaJsonString)
 ```
 
 https://github.com/actgardner/gogen-avro/
+
+## Run Docker Compose
+
+`sudo vi /etc/hosts`
+
+```
+127.0.0.1 kafka
+127.0.0.1 zookeeper
+127.0.0.1 schema-registry
+```
+
+```
+docker-compose up
+```
