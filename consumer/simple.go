@@ -21,7 +21,7 @@ type SimpleConsumer struct {
 }
 
 func (s *SimpleConsumer) Consume(ctx context.Context) error {
-	glog.V(0).Infof("import to %s started", s.KafkaTopic)
+	glog.V(3).Infof("import to %s started", s.KafkaTopic)
 
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_0_0_0
@@ -44,9 +44,10 @@ func (s *SimpleConsumer) Consume(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrapf(err, "get partitions for topic %s failed", s.KafkaTopic)
 	}
-	glog.V(2).Infof("found kafka partitions: %v", partitions)
+	glog.V(3).Infof("found kafka partitions: %v", partitions)
 
 	ctx, cancel := context.WithCancel(ctx)
+	cancel()
 
 	var wg sync.WaitGroup
 	for _, partition := range partitions {
@@ -54,8 +55,8 @@ func (s *SimpleConsumer) Consume(ctx context.Context) error {
 		go func(partition int32) {
 			defer wg.Done()
 
-			glog.V(1).Infof("consume topic %s partition %d started", s.KafkaTopic, partition)
-			defer glog.V(1).Infof("consume topic %s partition %d finished", s.KafkaTopic, partition)
+			glog.V(3).Infof("consume topic %s partition %d started", s.KafkaTopic, partition)
+			defer glog.V(3).Infof("consume topic %s partition %d finished", s.KafkaTopic, partition)
 
 			partitionConsumer, err := consumer.ConsumePartition(s.KafkaTopic, partition, sarama.OffsetOldest)
 			if err != nil {
@@ -80,12 +81,12 @@ func (s *SimpleConsumer) Consume(ctx context.Context) error {
 						glog.V(1).Infof("consume message %d failed: %v", msg.Offset, err)
 						continue
 					}
-					glog.V(2).Infof("message %d consumed successful", msg.Offset)
+					glog.V(3).Infof("message %d consumed successful", msg.Offset)
 				}
 			}
 		}(partition)
 	}
 	wg.Wait()
-	glog.V(0).Infof("import to %s finish", s.KafkaTopic)
+	glog.V(3).Infof("import to %s finish", s.KafkaTopic)
 	return nil
 }

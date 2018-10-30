@@ -23,6 +23,6 @@ func (o Offset) Bytes() []byte {
 
 func OffsetFromBytes(content []byte) Offset {
 	var result int64
-	binary.Read(bytes.NewBuffer(content), binary.BigEndian, &result)
+	_ = binary.Read(bytes.NewBuffer(content), binary.BigEndian, &result)
 	return Offset(result)
 }

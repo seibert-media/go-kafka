@@ -23,6 +23,6 @@ func (o Partition) Bytes() []byte {
 
 func PartitionFromBytes(content []byte) Partition {
 	var result int32
-	binary.Read(bytes.NewBuffer(content), binary.BigEndian, &result)
+	_ = binary.Read(bytes.NewBuffer(content), binary.BigEndian, &result)
 	return Partition(result)
 }

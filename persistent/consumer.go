@@ -24,7 +24,7 @@ type Consumer struct {
 }
 
 func (o *Consumer) Consume(ctx context.Context) error {
-	glog.V(0).Infof("import to %s started", o.KafkaTopic)
+	glog.V(3).Infof("import to %s started", o.KafkaTopic)
 
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_0_0_0
@@ -47,9 +47,10 @@ func (o *Consumer) Consume(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrapf(err, "get partitions for topic %s failed", o.KafkaTopic)
 	}
-	glog.V(2).Infof("found kafka partitions: %v", partitions)
+	glog.V(3).Infof("found kafka partitions: %v", partitions)
 
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
 	var wg sync.WaitGroup
 	for _, partition := range partitions {
@@ -57,8 +58,8 @@ func (o *Consumer) Consume(ctx context.Context) error {
 		go func(partition int32) {
 			defer wg.Done()
 
-			glog.V(1).Infof("consume topic %s partition %d started", o.KafkaTopic, partition)
-			defer glog.V(1).Infof("consume topic %s partition %d finished", o.KafkaTopic, partition)
+			glog.V(3).Infof("consume topic %s partition %d started", o.KafkaTopic, partition)
+			defer glog.V(3).Infof("consume topic %s partition %d finished", o.KafkaTopic, partition)
 
 			offset, err := o.OffsetManager.NextOffset(partition)
 			if err != nil {
@@ -66,7 +67,7 @@ func (o *Consumer) Consume(ctx context.Context) error {
 				cancel()
 				return
 			}
-			glog.V(2).Infof("got offset %d for partition %d", offset, partition)
+			glog.V(3).Infof("got offset %d for partition %d", offset, partition)
 
 			partitionConsumer, err := consumer.ConsumePartition(o.KafkaTopic, partition, offset)
 			if err != nil {
@@ -90,12 +91,12 @@ func (o *Consumer) Consume(ctx context.Context) error {
 					if err := o.OffsetManager.HandleMessage(partition, msg); err != nil {
 						glog.Warningf("handle message failed %v", err)
 					}
-					glog.V(2).Infof("message %d consumed successful", msg.Offset)
+					glog.V(3).Infof("message %d consumed successful", msg.Offset)
 				}
 			}
 		}(partition)
 	}
 	wg.Wait()
-	glog.V(0).Infof("import to %s finish", o.KafkaTopic)
+	glog.V(3).Infof("import to %s finish", o.KafkaTopic)
 	return nil
 }

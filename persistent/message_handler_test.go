@@ -29,15 +29,15 @@ var _ = Describe("MessageHandler", func() {
 		db, err = bolt.Open(filename, 0600, nil)
 		Expect(err).To(BeNil())
 
-		db.Update(func(tx *bolt.Tx) error {
-			tx.CreateBucket(offsetBucketName)
-			tx.CreateBucket([]byte("version"))
+		_ = db.Update(func(tx *bolt.Tx) error {
+			_, _ = tx.CreateBucket(offsetBucketName)
+			_, _ = tx.CreateBucket([]byte("version"))
 			return nil
 		})
 	})
 
 	AfterEach(func() {
-		os.Remove(filename)
+		_ = os.Remove(filename)
 	})
 
 	It("return -2 if next offset not found", func() {

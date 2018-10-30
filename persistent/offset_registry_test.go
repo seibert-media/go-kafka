@@ -25,17 +25,17 @@ var _ = Describe("OffsetRegistry", func() {
 		db, err = bolt.Open(filename, 0600, nil)
 		Expect(err).To(BeNil())
 
-		db.Update(func(tx *bolt.Tx) error {
-			tx.CreateBucket(bucketName)
+		_ = db.Update(func(tx *bolt.Tx) error {
+			_, _ = tx.CreateBucket(bucketName)
 			return nil
 		})
 
 	})
 	AfterEach(func() {
-		os.Remove(filename)
+		_ = os.Remove(filename)
 	})
 	It("return error if not exits", func() {
-		db.View(func(tx *bolt.Tx) error {
+		_ = db.View(func(tx *bolt.Tx) error {
 			offsetRegistry := persistent.OffsetRegistry{
 				Tx:         tx,
 				BucketName: bucketName,
@@ -47,15 +47,15 @@ var _ = Describe("OffsetRegistry", func() {
 	})
 	It("saves offset", func() {
 		offset := int64(42)
-		db.Update(func(tx *bolt.Tx) error {
+		_ = db.Update(func(tx *bolt.Tx) error {
 			offsetRegistry := persistent.OffsetRegistry{
 				Tx:         tx,
 				BucketName: bucketName,
 			}
-			offsetRegistry.Set(2, offset)
+			_ = offsetRegistry.Set(2, offset)
 			return nil
 		})
-		db.View(func(tx *bolt.Tx) error {
+		_ = db.View(func(tx *bolt.Tx) error {
 			offsetRegistry := persistent.OffsetRegistry{
 				Tx:         tx,
 				BucketName: bucketName,

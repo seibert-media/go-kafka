@@ -37,7 +37,7 @@ func (s *Registry) SchemaId(subject string, schema string) (uint32, error) {
 	}
 	id, ok := s.cache[schema]
 	if ok {
-		glog.V(3).Infof("cache hit return %d", id)
+		glog.V(4).Infof("cache hit return %d", id)
 		return id, nil
 	}
 	input := struct {

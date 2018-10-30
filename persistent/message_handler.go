@@ -23,7 +23,7 @@ type MessageHandler struct {
 
 func (f *MessageHandler) NextOffset(partition int32) (int64, error) {
 	offset := sarama.OffsetOldest
-	f.DB.View(func(tx *bolt.Tx) error {
+	_ = f.DB.View(func(tx *bolt.Tx) error {
 		offsetRegistry := OffsetRegistry{
 			BucketName: f.OffsetBucketName,
 			Tx:         tx,

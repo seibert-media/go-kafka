@@ -54,6 +54,7 @@ func (o *OffsetConsumer) Consume(ctx context.Context) error {
 	glog.V(2).Infof("found kafka partitions: %v", partitions)
 
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
 	var wg sync.WaitGroup
 	for _, partition := range partitions {
