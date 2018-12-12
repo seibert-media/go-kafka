@@ -59,6 +59,9 @@ func (s *Registry) SchemaId(subject string, schema string) (uint32, error) {
 		return 0, errors.Wrap(err, "http request failed")
 	}
 	if resp.StatusCode/100 != 2 {
+		if glog.V(2) {
+			glog.Infof("%s to %s failed with status %d. content: %s", req.Method, req.URL.String(), resp.StatusCode, body.String())
+		}
 		return 0, errors.New("status code != 2xx")
 	}
 	defer resp.Body.Close()
