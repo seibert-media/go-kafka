@@ -14,12 +14,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+// SimpleConsumer consume all new messages in the configured topic and calls messagehandler for each.
 type SimpleConsumer struct {
 	MessageHandler MessageHandler
 	KafkaBrokers   string
 	KafkaTopic     string
 }
 
+// Consume all messages until context is canceled.
 func (s *SimpleConsumer) Consume(ctx context.Context) error {
 	glog.V(3).Infof("import to %s started", s.KafkaTopic)
 

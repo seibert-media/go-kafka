@@ -16,10 +16,13 @@ import (
 )
 
 //go:generate counterfeiter -o ../mocks/http_client.go --fake-name HttpClient . HttpClient
+
+// HttpClient for schema registry.
 type HttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
+// Registry gets the schemaId from the schema registry.
 type Registry struct {
 	SchemaRegistryUrl string
 	HttpClient        HttpClient
@@ -28,7 +31,7 @@ type Registry struct {
 	cache map[string]uint32
 }
 
-// SchemaId return the id for the given schema json
+// SchemaId return the id for the given schema json.
 func (s *Registry) SchemaId(subject string, schema string) (uint32, error) {
 	s.mux.Lock()
 	defer s.mux.Unlock()

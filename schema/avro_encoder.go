@@ -8,11 +8,13 @@ import (
 	"encoding/binary"
 )
 
+// AvroEncoder encodes schemaId and Avro message.
 type AvroEncoder struct {
 	SchemaId uint32
 	Content  []byte
 }
 
+// Encode configured schemaId and Avro content into bytes.
 func (a *AvroEncoder) Encode() ([]byte, error) {
 	bs := make([]byte, 4)
 	binary.BigEndian.PutUint32(bs, a.SchemaId)
@@ -20,6 +22,7 @@ func (a *AvroEncoder) Encode() ([]byte, error) {
 	return append(header, a.Content...), nil
 }
 
+// Length of schemaId and Content.
 func (a *AvroEncoder) Length() int {
 	return 5 + len(a.Content)
 }
