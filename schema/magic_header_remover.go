@@ -11,6 +11,7 @@ import (
 
 const headerLength = 5
 
+// RemoveMagicHeader reads the five bytes from the reader to remove the magic header.
 func RemoveMagicHeader(reader io.Reader) error {
 	length, err := reader.Read(make([]byte, headerLength))
 	if err != nil {

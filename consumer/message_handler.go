@@ -11,6 +11,10 @@ import (
 )
 
 //go:generate counterfeiter -o ../mocks/messagehandler.go --fake-name MessageHandler . MessageHandler
+
+// MessageHandler is responsible for handling arriving Kakfa messages.
 type MessageHandler interface {
+
+	// ConsumeMessage is called for each message.
 	ConsumeMessage(ctx context.Context, msg *sarama.ConsumerMessage) error
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// OffsetConsumer consumes the configured Kafka topic and calls the messagehandler for each message.
 type OffsetConsumer struct {
 	MessageHandler MessageHandler
 	KafkaBrokers   string
@@ -21,6 +22,7 @@ type OffsetConsumer struct {
 	KafkaGroup     string
 }
 
+// Consume all messages until context is canceled.
 func (o *OffsetConsumer) Consume(ctx context.Context) error {
 	glog.V(0).Infof("import to %s started", o.KafkaTopic)
 

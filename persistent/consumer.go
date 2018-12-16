@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Consumer for with customer offset manager.
 type Consumer struct {
 	KafkaBrokers  string
 	KafkaTopic    string
@@ -23,6 +24,7 @@ type Consumer struct {
 	}
 }
 
+// Consume all messages until context is canceled.
 func (o *Consumer) Consume(ctx context.Context) error {
 	glog.V(3).Infof("import to %s started", o.KafkaTopic)
 

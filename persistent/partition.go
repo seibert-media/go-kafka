@@ -9,18 +9,22 @@ import (
 	"encoding/binary"
 )
 
+// Partition in Kafka.
 type Partition int32
 
+// Int32 value of the partition.
 func (o Partition) Int32() int32 {
 	return int32(o)
 }
 
+// Bytes representation for the partion.
 func (o Partition) Bytes() []byte {
 	result := &bytes.Buffer{}
 	binary.Write(result, binary.BigEndian, o.Int32())
 	return result.Bytes()
 }
 
+// PartitionFromBytes returns the partition for the given bytes.
 func PartitionFromBytes(content []byte) Partition {
 	var result int32
 	_ = binary.Read(bytes.NewBuffer(content), binary.BigEndian, &result)

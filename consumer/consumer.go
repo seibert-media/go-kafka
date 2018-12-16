@@ -7,6 +7,10 @@ package consumer
 import "context"
 
 //go:generate counterfeiter -o ../mocks/consumer.go --fake-name Consumer . Consumer
+
+// Consumer is the common interface for all consumers.
 type Consumer interface {
+
+	// Consume messages until context is canceled.
 	Consume(ctx context.Context) error
 }
