@@ -1,4 +1,8 @@
 
+run:
+	docker-compose up -d
+	docker-compose logs -f
+
 prepare:
 	go get -u golang.org/x/tools/cmd/goimports
 	go get -u github.com/onsi/ginkgo/ginkgo
