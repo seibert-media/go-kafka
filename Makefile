@@ -1,7 +1,14 @@
 
 run:
+	docker network create kafka || echo 'network already exists'
 	docker-compose up -d
 	docker-compose logs -f
+
+ksqlcli:
+	docker run -ti \
+	--net=kafka \
+	confluentinc/cp-ksql-cli:5.1.0 \
+	http://ksql-server:8088
 
 prepare:
 	go get -u golang.org/x/tools/cmd/goimports

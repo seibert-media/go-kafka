@@ -35,8 +35,18 @@ https://github.com/actgardner/gogen-avro/
 127.0.0.1 kafka
 127.0.0.1 zookeeper
 127.0.0.1 schema-registry
+127.0.0.1 ksql-server
 ```
 
 ```
 docker-compose up
+```
+
+## KSQL-Cli
+
+```
+docker run -ti \
+--net=kafka \
+confluentinc/cp-ksql-cli:5.1.0 \
+http://ksql-server:8088
 ```
