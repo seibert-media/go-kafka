@@ -1,24 +1,28 @@
-version: '3'
+version: '3.7'
 services:
   zookeeper:
+    networks:
+      - default
     image: confluentinc/cp-zookeeper:5.1.0
     hostname: zookeeper
     container_name: zookeeper
     ports:
-    - "2181:2181"
+      - '2181:2181'
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
+    networks:
+      - default
     image: confluentinc/cp-enterprise-kafka:5.1.0
     hostname: kafka
     container_name: kafka
     depends_on:
-    - zookeeper
+      - zookeeper
     ports:
-    - "9092:9092"
-    - "29092:29092"
+      - '9092:9092'
+      - '29092:29092'
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -34,14 +38,37 @@ services:
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
 
   schema-registry:
+    networks:
+      - default
     image: confluentinc/cp-schema-registry:5.1.0
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
-    - zookeeper
-    - kafka
+      - zookeeper
+      - kafka
     ports:
-    - "8081:8081"
+      - '8081:8081'
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+
+  ksql-server:
+    networks:
+      - default
+    image: confluentinc/cp-ksql-server:5.1.0
+    hostname: ksql-server
+    container_name: ksql-server
+    depends_on:
+      - zookeeper
+      - kafka
+    ports:
+      - '8088:8088'
+    environment:
+      KSQL_BOOTSTRAP_SERVERS: 'kafka:9092'
+      KSQL_LISTENERS: 'http://0.0.0.0:8088/'
+      KSQL_KSQL_SERVICE_ID: 'ksql-1'
+
+networks:
+  default:
+    external: true
+    name: kafka

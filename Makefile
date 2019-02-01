@@ -1,5 +1,6 @@
 
 run:
+	docker network create kafka || echo 'network already exists'
 	docker-compose up -d
 	docker-compose logs -f
 
