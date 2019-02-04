@@ -55,4 +55,4 @@ errcheck:
 
 addlicense:
 	go get github.com/google/addlicense
-	addlicense -c "//SEIBERT/MEDIA GmbH" -y 2018 -l bsd ./schema/*.go ./consumer/*.go ./persistent/*.go
+	addlicense -c "//SEIBERT/MEDIA GmbH" -y 2019 -l bsd ./schema/*.go ./consumer/*.go ./persistent/*.go
