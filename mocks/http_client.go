@@ -2,10 +2,10 @@
 package mocks
 
 import (
-	http "net/http"
-	sync "sync"
+	"net/http"
+	"sync"
 
-	schema "github.com/seibert-media/go-kafka/schema"
+	"github.com/seibert-media/go-kafka/schema"
 )
 
 type HttpClient struct {

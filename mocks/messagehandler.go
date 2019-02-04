@@ -2,11 +2,11 @@
 package mocks
 
 import (
-	context "context"
-	sync "sync"
+	"context"
+	"sync"
 
-	sarama "github.com/Shopify/sarama"
-	consumer "github.com/seibert-media/go-kafka/consumer"
+	"github.com/Shopify/sarama"
+	"github.com/seibert-media/go-kafka/consumer"
 )
 
 type MessageHandler struct {

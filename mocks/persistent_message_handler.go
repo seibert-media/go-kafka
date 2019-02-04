@@ -2,11 +2,11 @@
 package mocks
 
 import (
-	sync "sync"
+	"sync"
 
-	sarama "github.com/Shopify/sarama"
-	bolt "github.com/boltdb/bolt"
-	persistent "github.com/seibert-media/go-kafka/persistent"
+	"github.com/Shopify/sarama"
+	"github.com/boltdb/bolt"
+	"github.com/seibert-media/go-kafka/persistent"
 )
 
 type PersistentMessageHandler struct {

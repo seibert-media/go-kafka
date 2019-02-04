@@ -2,10 +2,10 @@
 package mocks
 
 import (
-	context "context"
-	sync "sync"
+	"context"
+	"sync"
 
-	consumer "github.com/seibert-media/go-kafka/consumer"
+	"github.com/seibert-media/go-kafka/consumer"
 )
 
 type Consumer struct {
