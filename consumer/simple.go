@@ -49,7 +49,7 @@ func (s *SimpleConsumer) Consume(ctx context.Context) error {
 	glog.V(3).Infof("found kafka partitions: %v", partitions)
 
 	ctx, cancel := context.WithCancel(ctx)
-	cancel()
+	defer cancel()
 
 	var wg sync.WaitGroup
 	for _, partition := range partitions {
