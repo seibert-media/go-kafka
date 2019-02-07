@@ -15,24 +15,30 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate counterfeiter -o ../mocks/http_client.go --fake-name HttpClient . HttpClient
-
-// HttpClient for schema registry.
-type HttpClient interface {
-	Do(req *http.Request) (*http.Response, error)
+// Registry gets the schemaId from the schema registry.
+type Registry interface {
+	// SchemaId return the id for the given schema json.
+	SchemaId(subject string, schema string) (uint32, error)
 }
 
-// Registry gets the schemaId from the schema registry.
-type Registry struct {
-	SchemaRegistryUrl string
-	HttpClient        HttpClient
+// NewRegistry create a Registry with the given HttpClient and URL
+func NewRegistry(httpClient *http.Client, schemaRegistryURL string) Registry {
+	return &registry{
+		httpClient:        httpClient,
+		schemaRegistryURL: schemaRegistryURL,
+	}
+}
+
+type registry struct {
+	schemaRegistryURL string
+	httpClient        *http.Client
 
 	mux   sync.Mutex
 	cache map[string]uint32
 }
 
 // SchemaId return the id for the given schema json.
-func (s *Registry) SchemaId(subject string, schema string) (uint32, error) {
+func (s *registry) SchemaId(subject string, schema string) (uint32, error) {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 	if s.cache == nil {
@@ -52,12 +58,12 @@ func (s *Registry) SchemaId(subject string, schema string) (uint32, error) {
 	if err := json.NewEncoder(body).Encode(input); err != nil {
 		return 0, errors.Wrap(err, "encode json failed")
 	}
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/subjects/%s/versions", s.SchemaRegistryUrl, subject), body)
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/subjects/%s/versions", s.schemaRegistryURL, subject), body)
 	if err != nil {
 		return 0, errors.Wrap(err, "create request failed")
 	}
 	req.Header.Add("Content-Type", "application/vnd.schemaregistry.v1+json")
-	resp, err := s.HttpClient.Do(req)
+	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return 0, errors.Wrap(err, "http request failed")
 	}
