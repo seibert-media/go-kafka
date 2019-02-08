@@ -29,7 +29,7 @@ ensure:
 
 generate:
 	go get github.com/maxbrunsfeld/counterfeiter
-	find . -name mocks -type d | xargs rm -rf -
+	rm -rf mocks
 	go generate ./...
 
 format:
