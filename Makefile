@@ -15,7 +15,6 @@ prepare:
 	go get -u github.com/onsi/ginkgo/ginkgo
 	go get -u github.com/maxbrunsfeld/counterfeiter
 	go get -u github.com/google/addlicense
-	go get -u github.com/golang/dep/
 
 ginkgo:
 	go get github.com/onsi/ginkgo/ginkgo
@@ -25,7 +24,8 @@ precommit: ensure generate format test check addlicense
 	@echo "ready to commit"
 
 ensure:
-	dep ensure
+	GO111MODULE=on go mod tidy
+	GO111MODULE=on go mod vendor
 
 generate:
 	go get github.com/maxbrunsfeld/counterfeiter
