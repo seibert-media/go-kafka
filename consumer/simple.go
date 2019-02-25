@@ -83,7 +83,7 @@ func (s *simpleConsumer) Consume(ctx context.Context) error {
 						glog.V(1).Infof("consume message %d failed: %v", msg.Offset, err)
 						continue
 					}
-					glog.V(3).Infof("message %d consumed successful", msg.Offset)
+					glog.V(3).Infof("message %d consumed from partition %d in topic %s successful",msg.Offset, partition, s.topic)
 				}
 			}
 		}(partition)
