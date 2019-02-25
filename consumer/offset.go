@@ -6,7 +6,6 @@ package consumer
 
 import (
 	"context"
-	"strings"
 	"sync"
 
 	"github.com/Shopify/sarama"
@@ -14,44 +13,47 @@ import (
 	"github.com/pkg/errors"
 )
 
+func NewOffsetConsumer(
+	messageHandler MessageHandler,
+	client sarama.Client,
+	topic string,
+	group string,
+) Consumer {
+	return &offsetConsumer{
+		messageHandler: messageHandler,
+		client:         client,
+		topic:          topic,
+		group:          group,
+	}
+}
+
 // OffsetConsumer consumes the configured Kafka topic and calls the messagehandler for each message.
-type OffsetConsumer struct {
-	MessageHandler MessageHandler
-	KafkaBrokers   string
-	KafkaTopic     string
-	KafkaGroup     string
+type offsetConsumer struct {
+	messageHandler MessageHandler
+	client         sarama.Client
+	topic          string
+	group          string
 }
 
 // Consume all messages until context is canceled.
-func (o *OffsetConsumer) Consume(ctx context.Context) error {
-	glog.V(0).Infof("import to %s started", o.KafkaTopic)
+func (o *offsetConsumer) Consume(ctx context.Context) error {
+	glog.V(0).Infof("import to %s started", o.topic)
 
-	config := sarama.NewConfig()
-	config.Version = sarama.V2_0_0_0
-	config.Consumer.Offsets.Initial = sarama.OffsetOldest
-	config.Consumer.Return.Errors = true
-
-	client, err := sarama.NewClient(strings.Split(o.KafkaBrokers, ","), config)
+	consumer, err := sarama.NewConsumerFromClient(o.client)
 	if err != nil {
-		return errors.Wrapf(err, "create kafka client with brokers %s failed", o.KafkaBrokers)
-	}
-	defer client.Close()
-
-	consumer, err := sarama.NewConsumerFromClient(client)
-	if err != nil {
-		return errors.Wrapf(err, "create consumer with brokers %s failed", o.KafkaBrokers)
+		return errors.Wrapf(err, "create consumer failed")
 	}
 	defer consumer.Close()
 
-	offsetManager, err := sarama.NewOffsetManagerFromClient(o.KafkaGroup, client)
+	offsetManager, err := sarama.NewOffsetManagerFromClient(o.group, o.client)
 	if err != nil {
-		return errors.Wrapf(err, "create offsetManager for group %s failed", o.KafkaGroup)
+		return errors.Wrapf(err, "create offsetManager for group %s failed", o.group)
 	}
 	defer offsetManager.Close()
 
-	partitions, err := consumer.Partitions(o.KafkaTopic)
+	partitions, err := consumer.Partitions(o.topic)
 	if err != nil {
-		return errors.Wrapf(err, "get partitions for topic %s failed", o.KafkaTopic)
+		return errors.Wrapf(err, "get partitions for topic %s failed", o.topic)
 	}
 	glog.V(2).Infof("found kafka partitions: %v", partitions)
 
@@ -64,12 +66,12 @@ func (o *OffsetConsumer) Consume(ctx context.Context) error {
 		go func(partition int32) {
 			defer wg.Done()
 
-			glog.V(1).Infof("consume topic %s partition %d started", o.KafkaTopic, partition)
-			defer glog.V(1).Infof("consume topic %s partition %d finished", o.KafkaTopic, partition)
+			glog.V(1).Infof("consume topic %s partition %d started", o.topic, partition)
+			defer glog.V(1).Infof("consume topic %s partition %d finished", o.topic, partition)
 
-			partitionOffsetManager, err := offsetManager.ManagePartition(o.KafkaTopic, partition)
+			partitionOffsetManager, err := offsetManager.ManagePartition(o.topic, partition)
 			if err != nil {
-				glog.Warningf("create partitionOffsetManager for topic %s failed: %v", o.KafkaTopic, err)
+				glog.Warningf("create partitionOffsetManager for topic %s failed: %v", o.topic, err)
 				cancel()
 				return
 			}
@@ -78,9 +80,9 @@ func (o *OffsetConsumer) Consume(ctx context.Context) error {
 			nextOffset, metadata := partitionOffsetManager.NextOffset()
 			glog.V(2).Infof("offset: %d %s", nextOffset, metadata)
 
-			partitionConsumer, err := consumer.ConsumePartition(o.KafkaTopic, partition, nextOffset)
+			partitionConsumer, err := consumer.ConsumePartition(o.topic, partition, nextOffset)
 			if err != nil {
-				glog.Warningf("create partitionConsumer for topic %s failed: %v", o.KafkaTopic, err)
+				glog.Warningf("create partitionConsumer for topic %s failed: %v", o.topic, err)
 				cancel()
 				return
 			}
@@ -97,7 +99,7 @@ func (o *OffsetConsumer) Consume(ctx context.Context) error {
 					if glog.V(4) {
 						glog.Infof("handle message: %s", string(msg.Value))
 					}
-					if err := o.MessageHandler.ConsumeMessage(ctx, msg); err != nil {
+					if err := o.messageHandler.ConsumeMessage(ctx, msg); err != nil {
 						glog.V(1).Infof("consume message %d failed: %v", msg.Offset, err)
 						continue
 					}
@@ -108,6 +110,6 @@ func (o *OffsetConsumer) Consume(ctx context.Context) error {
 		}(partition)
 	}
 	wg.Wait()
-	glog.V(0).Infof("import to %s finish", o.KafkaTopic)
+	glog.V(0).Infof("import to %s finish", o.topic)
 	return nil
 }
