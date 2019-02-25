@@ -67,13 +67,19 @@ func (s *registry) SchemaId(subject string, schema string) (uint32, error) {
 	if err != nil {
 		return 0, errors.Wrap(err, "http request failed")
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode/100 != 2 {
 		if glog.V(2) {
 			glog.Infof("%s to %s failed with status %d. content: %s", req.Method, req.URL.String(), resp.StatusCode, body.String())
 		}
-		return 0, errors.New("status code != 2xx")
+		var data struct {
+			Message string `json:"message"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+			return 0, err
+		}
+		return 0, errors.Errorf("status code != 2xx: %v", data.Message)
 	}
-	defer resp.Body.Close()
 	var output struct {
 		Id uint32 `json:"id"`
 	}
