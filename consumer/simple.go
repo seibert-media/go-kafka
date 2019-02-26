@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// NewSimpleConsumer return an basic Consumer.
 func NewSimpleConsumer(
 	messageHandler MessageHandler,
 	client sarama.Client,
@@ -83,7 +84,7 @@ func (s *simpleConsumer) Consume(ctx context.Context) error {
 						glog.V(1).Infof("consume message %d failed: %v", msg.Offset, err)
 						continue
 					}
-					glog.V(3).Infof("message %d consumed from partition %d in topic %s successful",msg.Offset, partition, s.topic)
+					glog.V(3).Infof("message %d consumed from partition %d in topic %s successful", msg.Offset, partition, s.topic)
 				}
 			}
 		}(partition)

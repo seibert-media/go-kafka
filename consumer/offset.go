@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// NewOffsetConsumer return an consumer with offset tracking.
 func NewOffsetConsumer(
 	messageHandler MessageHandler,
 	client sarama.Client,
