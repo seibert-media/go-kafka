@@ -15,6 +15,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate counterfeiter -o ../mocks/schema_registry.go --fake-name SchemaRegistry . Registry
+
 // Registry gets the schemaId from the schema registry.
 type Registry interface {
 	// SchemaId return the id for the given schema json.
