@@ -25,7 +25,6 @@ precommit: ensure generate format test check addlicense
 
 ensure:
 	GO111MODULE=on go mod tidy
-	GO111MODULE=on go mod vendor
 
 generate:
 	go get github.com/maxbrunsfeld/counterfeiter
