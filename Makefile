@@ -24,7 +24,7 @@ precommit: ensure generate format test check addlicense
 	@echo "ready to commit"
 
 ensure:
-	GO111MODULE=on go mod tidy
+	GO111MODULE=on go mod verify
 
 generate:
 	go get github.com/maxbrunsfeld/counterfeiter
