@@ -38,7 +38,7 @@ type offsetConsumer struct {
 
 // Consume all messages until context is canceled.
 func (o *offsetConsumer) Consume(ctx context.Context) error {
-	glog.V(0).Infof("import to %s started", o.topic)
+	glog.V(0).Infof("consume topic %s started", o.topic)
 
 	consumer, err := sarama.NewConsumerFromClient(o.client)
 	if err != nil {
@@ -93,15 +93,15 @@ func (o *offsetConsumer) Consume(ctx context.Context) error {
 				case <-ctx.Done():
 					return
 				case err := <-partitionConsumer.Errors():
-					glog.Warningf("get error %v", err)
+					glog.Warningf("while consume topic %s go error: %v", o.topic, err)
 					cancel()
 					return
 				case msg := <-partitionConsumer.Messages():
 					if glog.V(4) {
-						glog.Infof("handle message: %s", string(msg.Value))
+						glog.Infof("handle message in topic %s with content: %s", o.topic, string(msg.Value))
 					}
 					if err := o.messageHandler.ConsumeMessage(ctx, msg); err != nil {
-						glog.V(1).Infof("consume message %d failed: %v", msg.Offset, err)
+						glog.V(1).Infof("consume message %d in topic %s failed: %v", msg.Offset, o.topic, err)
 						continue
 					}
 					partitionOffsetManager.MarkOffset(msg.Offset+1, "")
@@ -111,6 +111,6 @@ func (o *offsetConsumer) Consume(ctx context.Context) error {
 		}(partition)
 	}
 	wg.Wait()
-	glog.V(0).Infof("import to %s finish", o.topic)
+	glog.V(0).Infof("consume topic %s finish", o.topic)
 	return nil
 }
