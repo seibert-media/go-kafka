@@ -13,7 +13,7 @@ ksqlcli:
 prepare:
 	go get -u golang.org/x/tools/cmd/goimports
 	go get -u github.com/onsi/ginkgo/ginkgo
-	go get -u github.com/maxbrunsfeld/counterfeiter
+	go get -u github.com/maxbrunsfeld/counterfeiter/v6
 	go get -u github.com/google/addlicense
 
 ginkgo:
@@ -25,9 +25,10 @@ precommit: ensure generate format test check addlicense
 
 ensure:
 	GO111MODULE=on go mod verify
+	GO111MODULE=on go mod vendor
 
 generate:
-	go get github.com/maxbrunsfeld/counterfeiter
+	go get github.com/maxbrunsfeld/counterfeiter/v6
 	rm -rf mocks
 	go generate ./...
 
