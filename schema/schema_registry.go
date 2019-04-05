@@ -40,13 +40,21 @@ type registry struct {
 }
 
 // SchemaId return the id for the given schema json.
-func (s *registry) SchemaId(subject string, schema string) (uint32, error) {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-	if s.cache == nil {
-		s.cache = make(map[string]uint32)
+func (r *registry) SchemaId(subject string, schema string) (uint32, error) {
+	id, err := r.schemaId(subject, schema)
+	if err != nil {
+		return 0, errors.Wrapf(err, "register schema for subject %s failed", subject)
 	}
-	id, ok := s.cache[schema]
+	return id, nil
+}
+
+func (r *registry) schemaId(subject string, schema string) (uint32, error) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	if r.cache == nil {
+		r.cache = make(map[string]uint32)
+	}
+	id, ok := r.cache[schema]
 	if ok {
 		glog.V(4).Infof("cache hit return %d", id)
 		return id, nil
@@ -60,12 +68,12 @@ func (s *registry) SchemaId(subject string, schema string) (uint32, error) {
 	if err := json.NewEncoder(body).Encode(input); err != nil {
 		return 0, errors.Wrap(err, "encode json failed")
 	}
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/subjects/%s/versions", s.schemaRegistryURL, subject), body)
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/subjects/%s/versions", r.schemaRegistryURL, subject), body)
 	if err != nil {
 		return 0, errors.Wrap(err, "create request failed")
 	}
 	req.Header.Add("Content-Type", "application/vnd.schemaregistry.v1+json")
-	resp, err := s.httpClient.Do(req)
+	resp, err := r.httpClient.Do(req)
 	if err != nil {
 		return 0, errors.Wrap(err, "http request failed")
 	}
@@ -92,7 +100,7 @@ func (s *registry) SchemaId(subject string, schema string) (uint32, error) {
 	if output.Id == 0 {
 		return 0, errors.New("get id from schema registry failed")
 	}
-	s.cache[schema] = output.Id
+	r.cache[schema] = output.Id
 	glog.V(3).Infof("got %d from schema registry", output.Id)
 	return output.Id, nil
 }
