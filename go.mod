@@ -5,6 +5,8 @@ go 1.12
 require (
 	github.com/Shopify/sarama v1.21.0
 	github.com/boltdb/bolt v1.3.1
+	github.com/certifi/gocertifi v0.0.0-20190415143156-92f724a62f3e // indirect
+	github.com/getsentry/raven-go v0.2.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/addlicense v0.0.0-20190107131845-2e5cf00261bf // indirect
 	github.com/kisielk/errcheck v1.2.0 // indirect
