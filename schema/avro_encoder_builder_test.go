@@ -51,6 +51,20 @@ var _ = Describe("AvroEncoderBuilder", func() {
 			Expect(err).To(BeNil())
 			Expect(len(bytes)).To(Equal(magicHeaderLength + len(avroSerialized)))
 		})
+		It("encoder contains schemaId", func() {
+			encoder, err := avroEncoderBuilder.BuildEncoder("mysubject", avro)
+			Expect(err).To(BeNil())
+			avroEncoder, ok := encoder.(*schema.AvroEncoder)
+			Expect(ok).To(BeTrue())
+			Expect(avroEncoder.SchemaId).To(Equal(uint32(123)))
+		})
+		It("encoder contains content", func() {
+			encoder, err := avroEncoderBuilder.BuildEncoder("mysubject", avro)
+			Expect(err).To(BeNil())
+			avroEncoder, ok := encoder.(*schema.AvroEncoder)
+			Expect(ok).To(BeTrue())
+			Expect(avroEncoder.Content).To(Equal(avroSerialized))
+		})
 		Context("avro encode failed", func() {
 			BeforeEach(func() {
 				avro.SerializeReturns(errors.New("banana"))
