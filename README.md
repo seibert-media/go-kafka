@@ -47,6 +47,6 @@ docker-compose up
 ```
 docker run -ti \
 --net=kafka \
-confluentinc/cp-ksql-cli:5.1.2 \
+confluentinc/cp-ksql-cli:5.2.2 \
 http://ksql-server:8088
 ```
