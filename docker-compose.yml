@@ -3,7 +3,7 @@ services:
   zookeeper:
     networks:
       - default
-    image: confluentinc/cp-zookeeper:5.1.2
+    image: confluentinc/cp-zookeeper:5.3.0
     hostname: zookeeper
     container_name: zookeeper
     ports:
@@ -15,7 +15,7 @@ services:
   kafka:
     networks:
       - default
-    image: confluentinc/cp-enterprise-kafka:5.1.2
+    image: confluentinc/cp-enterprise-kafka:5.3.0
     hostname: kafka
     container_name: kafka
     depends_on:
@@ -40,7 +40,7 @@ services:
   schema-registry:
     networks:
       - default
-    image: confluentinc/cp-schema-registry:5.1.2
+    image: confluentinc/cp-schema-registry:5.3.0
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
@@ -55,7 +55,7 @@ services:
   ksql-server:
     networks:
       - default
-    image: confluentinc/cp-ksql-server:5.1.2
+    image: confluentinc/cp-ksql-server:5.3.0
     hostname: ksql-server
     container_name: ksql-server
     depends_on:

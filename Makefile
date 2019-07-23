@@ -7,7 +7,7 @@ run:
 ksqlcli:
 	docker run -ti \
 	--net=kafka \
-	confluentinc/cp-ksql-cli:5.1.2 \
+	confluentinc/cp-ksql-cli:5.3.0 \
 	http://ksql-server:8088
 
 prepare:
