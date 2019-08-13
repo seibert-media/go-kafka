@@ -36,10 +36,10 @@ var _ = Describe("OffsetRegistry", func() {
 	})
 	It("return error if not exits", func() {
 		_ = db.View(func(tx *bolt.Tx) error {
-			offsetRegistry := persistent.OffsetRegistry{
-				Tx:         tx,
-				BucketName: bucketName,
-			}
+			offsetRegistry := persistent.NewOffsetRegistry(
+				tx,
+				bucketName,
+			)
 			_, err := offsetRegistry.Get(1)
 			Expect(err).NotTo(BeNil())
 			return nil
@@ -48,18 +48,18 @@ var _ = Describe("OffsetRegistry", func() {
 	It("saves offset", func() {
 		offset := int64(42)
 		_ = db.Update(func(tx *bolt.Tx) error {
-			offsetRegistry := persistent.OffsetRegistry{
-				Tx:         tx,
-				BucketName: bucketName,
-			}
+			offsetRegistry := persistent.NewOffsetRegistry(
+				tx,
+				bucketName,
+			)
 			_ = offsetRegistry.Set(2, offset)
 			return nil
 		})
 		_ = db.View(func(tx *bolt.Tx) error {
-			offsetRegistry := persistent.OffsetRegistry{
-				Tx:         tx,
-				BucketName: bucketName,
-			}
+			offsetRegistry := persistent.NewOffsetRegistry(
+				tx,
+				bucketName,
+			)
 			offset, err := offsetRegistry.Get(2)
 			Expect(err).To(BeNil())
 			Expect(offset).To(Equal(offset))

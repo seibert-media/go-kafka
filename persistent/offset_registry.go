@@ -10,15 +10,29 @@ import (
 )
 
 // OffsetRegistry save and load the current offset from Bolt.
-type OffsetRegistry struct {
-	Tx         *bolt.Tx
-	BucketName []byte
+type OffsetRegistry interface {
+	Get(partition int32) (int64, error)
+	Set(partition int32, offset int64) error
+}
+
+func NewOffsetRegistry(
+	tx *bolt.Tx,
+	bucketName []byte,
+) OffsetRegistry {
+	return &offsetRegistry{
+		tx:         tx,
+		bucketName: bucketName,
+	}
+}
+
+type offsetRegistry struct {
+	tx         *bolt.Tx
+	bucketName []byte
 }
 
 // Get offset for the given partition.
-func (o *OffsetRegistry) Get(partition int32) (int64, error) {
-	bucket := o.Tx.Bucket(o.BucketName)
-	bytes := bucket.Get(Partition(partition).Bytes())
+func (o *offsetRegistry) Get(partition int32) (int64, error) {
+	bytes := o.tx.Bucket(o.bucketName).Get(Partition(partition).Bytes())
 	if bytes == nil {
 		return 0, errors.New("get offest failed")
 	}
@@ -26,7 +40,6 @@ func (o *OffsetRegistry) Get(partition int32) (int64, error) {
 }
 
 // Set offset for the given partition.
-func (o *OffsetRegistry) Set(partition int32, offset int64) error {
-	offsetBucket := o.Tx.Bucket(o.BucketName)
-	return offsetBucket.Put(Partition(partition).Bytes(), Offset(offset).Bytes())
+func (o *offsetRegistry) Set(partition int32, offset int64) error {
+	return o.tx.Bucket(o.bucketName).Put(Partition(partition).Bytes(), Offset(offset).Bytes())
 }
