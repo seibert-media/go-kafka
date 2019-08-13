@@ -11,9 +11,15 @@ import (
 const storageBucket = "storage"
 const offsetBucket = "offset"
 
+// Storage saves all write to a Kafka topic and caches reads in a local Bolt database.
 type Storage interface {
+	// Get value for the given key.
 	Get(ctx context.Context, key []byte) ([]byte, error)
+
+	// Set a value for the given key.
 	Set(ctx context.Context, key []byte, value []byte) error
+
+	// Read fill Bolt db until context is canceled.
 	Read(ctx context.Context) error
 }
 
