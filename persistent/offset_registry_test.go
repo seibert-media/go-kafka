@@ -24,46 +24,49 @@ var _ = Describe("OffsetRegistry", func() {
 		filename = file.Name()
 		db, err = bolt.Open(filename, 0600, nil)
 		Expect(err).To(BeNil())
-
-		_ = db.Update(func(tx *bolt.Tx) error {
-			_, _ = tx.CreateBucket(bucketName)
-			return nil
-		})
-
 	})
 	AfterEach(func() {
+		db.Close()
 		_ = os.Remove(filename)
 	})
-	It("return error if not exits", func() {
-		_ = db.View(func(tx *bolt.Tx) error {
-			offsetRegistry := persistent.NewOffsetRegistry(
-				tx,
-				bucketName,
-			)
-			_, err := offsetRegistry.Get(1)
-			Expect(err).NotTo(BeNil())
-			return nil
+	Context("with existing bucket", func() {
+		BeforeEach(func() {
+			_ = db.Update(func(tx *bolt.Tx) error {
+				_, _ = tx.CreateBucket(bucketName)
+				return nil
+			})
 		})
-	})
-	It("saves offset", func() {
-		offset := int64(42)
-		_ = db.Update(func(tx *bolt.Tx) error {
-			offsetRegistry := persistent.NewOffsetRegistry(
-				tx,
-				bucketName,
-			)
-			_ = offsetRegistry.Set(2, offset)
-			return nil
+		It("return error if not exits", func() {
+			_ = db.View(func(tx *bolt.Tx) error {
+				offsetRegistry := persistent.NewOffsetRegistry(
+					tx,
+					bucketName,
+				)
+				_, err := offsetRegistry.Get(1)
+				Expect(err).NotTo(BeNil())
+				return nil
+			})
 		})
-		_ = db.View(func(tx *bolt.Tx) error {
-			offsetRegistry := persistent.NewOffsetRegistry(
-				tx,
-				bucketName,
-			)
-			offset, err := offsetRegistry.Get(2)
-			Expect(err).To(BeNil())
-			Expect(offset).To(Equal(offset))
-			return nil
+		It("saves offset", func() {
+			offset := int64(42)
+			_ = db.Update(func(tx *bolt.Tx) error {
+				offsetRegistry := persistent.NewOffsetRegistry(
+					tx,
+					bucketName,
+				)
+				_ = offsetRegistry.Set(2, offset)
+				return nil
+			})
+			_ = db.View(func(tx *bolt.Tx) error {
+				offsetRegistry := persistent.NewOffsetRegistry(
+					tx,
+					bucketName,
+				)
+				offset, err := offsetRegistry.Get(2)
+				Expect(err).To(BeNil())
+				Expect(offset).To(Equal(offset))
+				return nil
+			})
 		})
 	})
 })

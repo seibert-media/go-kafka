@@ -1,7 +1,12 @@
+// Copyright (c) 2019 //SEIBERT/MEDIA GmbH All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package persistent
 
 import (
 	"context"
+
 	"github.com/Shopify/sarama"
 	"github.com/boltdb/bolt"
 	"github.com/golang/glog"
@@ -46,12 +51,10 @@ type storage struct {
 
 // Get last seen value from Bolt.
 func (s *storage) Get(ctx context.Context, key []byte) (result []byte, err error) {
-	err = s.db.Update(func(tx *bolt.Tx) error {
-		bucket, err := tx.CreateBucketIfNotExists([]byte(storageBucket))
-		if err != nil {
-			return errors.Wrapf(err, "create bucket %s failed", storageBucket)
+	err = s.db.View(func(tx *bolt.Tx) error {
+		if bucket := tx.Bucket([]byte(storageBucket)); bucket != nil {
+			result = bucket.Get(key)
 		}
-		result = bucket.Get(key)
 		return nil
 	})
 	return
@@ -73,11 +76,20 @@ func (s *storage) Set(ctx context.Context, key []byte, value []byte) error {
 
 // Read topic and save keys and values to Bolt.
 func (s *storage) Read(ctx context.Context) error {
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		if _, err := tx.CreateBucketIfNotExists([]byte(storageBucket)); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrap(err, "create buckets failed")
+	}
 	return NewOffsetConsumer(
 		MessageHandlerFunc(func(ctx context.Context, tx *bolt.Tx, msg *sarama.ConsumerMessage) error {
-			bucket, err := tx.CreateBucketIfNotExists([]byte(storageBucket))
-			if err != nil {
-				return errors.Wrapf(err, "create bucket %s failed", storageBucket)
+			bucket := tx.Bucket([]byte(storageBucket))
+			if bucket == nil {
+				return errors.Errorf("get bucket %s failed", storageBucket)
 			}
 			return bucket.Put(msg.Key, msg.Value)
 		}),

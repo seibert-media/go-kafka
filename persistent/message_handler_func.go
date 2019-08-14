@@ -6,6 +6,7 @@ package persistent
 
 import (
 	"context"
+
 	"github.com/boltdb/bolt"
 
 	"github.com/Shopify/sarama"

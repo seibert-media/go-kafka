@@ -6,11 +6,12 @@ package persistent
 
 import (
 	"context"
+
 	"github.com/Shopify/sarama"
 	"github.com/boltdb/bolt"
 )
 
-//go:generate counterfeiter -o ../mocks/persistent-message-handler.go --fake-name PersistentMessageHandler . PersistentMessageHandler
+//go:generate counterfeiter -o ../mocks/persistent-message-handler.go --fake-name PersistentMessageHandler . MessageHandler
 
 // MessageHandler handles Kafka messages with an open database connection.
 type MessageHandler interface {

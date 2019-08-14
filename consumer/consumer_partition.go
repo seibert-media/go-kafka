@@ -6,6 +6,7 @@ package consumer
 
 import (
 	"context"
+
 	"github.com/Shopify/sarama"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"

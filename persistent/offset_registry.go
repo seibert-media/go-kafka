@@ -32,7 +32,11 @@ type offsetRegistry struct {
 
 // Get offset for the given partition.
 func (o *offsetRegistry) Get(partition int32) (int64, error) {
-	bytes := o.tx.Bucket(o.bucketName).Get(Partition(partition).Bytes())
+	bucket := o.tx.Bucket(o.bucketName)
+	if bucket == nil {
+		return 0, errors.New("bucket does not exists")
+	}
+	bytes := bucket.Get(Partition(partition).Bytes())
 	if bytes == nil {
 		return 0, errors.New("get offest failed")
 	}
@@ -41,5 +45,9 @@ func (o *offsetRegistry) Get(partition int32) (int64, error) {
 
 // Set offset for the given partition.
 func (o *offsetRegistry) Set(partition int32, offset int64) error {
-	return o.tx.Bucket(o.bucketName).Put(Partition(partition).Bytes(), Offset(offset).Bytes())
+	bucket := o.tx.Bucket(o.bucketName)
+	if bucket == nil {
+		return errors.New("bucket does not exists")
+	}
+	return bucket.Put(Partition(partition).Bytes(), Offset(offset).Bytes())
 }

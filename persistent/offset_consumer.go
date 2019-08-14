@@ -6,9 +6,10 @@ package persistent
 
 import (
 	"context"
+	"sync"
+
 	"github.com/boltdb/bolt"
 	"github.com/seibert-media/go-kafka/consumer"
-	"sync"
 
 	"github.com/Shopify/sarama"
 	"github.com/golang/glog"
@@ -63,6 +64,16 @@ func (o *offsetConsumer) Consume(ctx context.Context) error {
 		return errors.Wrapf(err, "get partitions for topic %s failed", o.topic)
 	}
 	glog.V(2).Infof("found kafka partitions: %v", partitions)
+
+	err = o.db.Update(func(tx *bolt.Tx) error {
+		if _, err := tx.CreateBucketIfNotExists(o.offsetBucketName); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrap(err, "create buckets failed")
+	}
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
