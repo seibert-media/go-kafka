@@ -40,7 +40,6 @@ type offsetConsumer struct {
 	messageHandler   MessageHandler
 	client           sarama.Client
 	topic            string
-	group            string
 }
 
 // Consume all messages until context is canceled.
@@ -52,12 +51,6 @@ func (o *offsetConsumer) Consume(ctx context.Context) error {
 		return errors.Wrapf(err, "create consumer failed")
 	}
 	defer con.Close()
-
-	offsetManager, err := sarama.NewOffsetManagerFromClient(o.group, o.client)
-	if err != nil {
-		return errors.Wrapf(err, "create offsetManager for group %s failed", o.group)
-	}
-	defer offsetManager.Close()
 
 	partitions, err := con.Partitions(o.topic)
 	if err != nil {
@@ -96,7 +89,7 @@ func (o *offsetConsumer) Consume(ctx context.Context) error {
 				nextOffset = sarama.OffsetOldest
 			}
 
-			glog.V(2).Infof("topic %s with group %s start from offset %d", o.topic, o.group, nextOffset)
+			glog.V(2).Infof("topic %s start from offset %d", o.topic, nextOffset)
 
 			partitionConsumer := consumer.NewPartitionConsumer(
 				NewOffsetMessageHandler(
