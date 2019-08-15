@@ -57,11 +57,13 @@ func (s *storage) Get(ctx context.Context, key []byte) (result []byte, err error
 		}
 		return nil
 	})
+	glog.V(2).Infof("get %s=%s to kafka", string(key), string(result))
 	return
 }
 
 // Set send each value to a topic.
 func (s *storage) Set(ctx context.Context, key []byte, value []byte) error {
+	glog.V(2).Infof("send %s=%s to kafka", string(key), string(value))
 	partition, offset, err := s.producer.SendMessage(&sarama.ProducerMessage{
 		Topic: s.topic,
 		Key:   sarama.ByteEncoder(key),
@@ -91,6 +93,7 @@ func (s *storage) Read(ctx context.Context) error {
 			if bucket == nil {
 				return errors.Errorf("get bucket %s failed", storageBucket)
 			}
+			glog.V(2).Infof("save %s=%s from kafka to bolt", string(msg.Key), string(msg.Value))
 			return bucket.Put(msg.Key, msg.Value)
 		}),
 		s.client,
