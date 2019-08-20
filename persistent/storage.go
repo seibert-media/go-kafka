@@ -63,7 +63,7 @@ func (s *storage) Get(ctx context.Context, key []byte) (result []byte, err error
 
 // Set send each value to a topic.
 func (s *storage) Set(ctx context.Context, key []byte, value []byte) error {
-	glog.V(2).Infof("send %s=%s to kafka", string(key), string(value))
+	glog.V(4).Infof("send %s=%s to kafka", string(key), string(value))
 	partition, offset, err := s.producer.SendMessage(&sarama.ProducerMessage{
 		Topic: s.topic,
 		Key:   sarama.ByteEncoder(key),
