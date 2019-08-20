@@ -57,7 +57,7 @@ func (s *storage) Get(ctx context.Context, key []byte) (result []byte, err error
 		}
 		return nil
 	})
-	glog.V(2).Infof("get %s=%s to kafka", string(key), string(result))
+	glog.V(4).Infof("get %s=%s to kafka", string(key), string(result))
 	return
 }
 
@@ -72,7 +72,7 @@ func (s *storage) Set(ctx context.Context, key []byte, value []byte) error {
 	if err != nil {
 		return errors.Wrap(err, "send message failed")
 	}
-	glog.V(3).Infof("send message successful to %s with partition %d offset %d", s.topic, partition, offset)
+	glog.V(4).Infof("send message successful to %s with partition %d offset %d", s.topic, partition, offset)
 	return nil
 }
 
@@ -93,7 +93,7 @@ func (s *storage) Read(ctx context.Context) error {
 			if bucket == nil {
 				return errors.Errorf("get bucket %s failed", storageBucket)
 			}
-			glog.V(2).Infof("save %s=%s from kafka to bolt", string(msg.Key), string(msg.Value))
+			glog.V(4).Infof("save %s=%s from kafka to bolt", string(msg.Key), string(msg.Value))
 			return bucket.Put(msg.Key, msg.Value)
 		}),
 		s.client,
