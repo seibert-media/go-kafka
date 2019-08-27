@@ -81,32 +81,19 @@ func (o *offsetConsumer) Consume(ctx context.Context) error {
 			nextOffset, _ := partitionOffsetManager.NextOffset()
 			glog.V(2).Infof("topic %s with group %s start from offset %d", o.topic, o.group, nextOffset)
 
-			partitionConsumer, err := consumer.ConsumePartition(o.topic, partition, nextOffset)
-			if err != nil {
-				glog.Warningf("create partitionConsumer for topic %s failed: %v", o.topic, err)
+			messageHandler := NewMessageHandlerHook(
+				nil,
+				o.messageHandler,
+				MessageHandlerFunc(func(ctx context.Context, msg *sarama.ConsumerMessage) error {
+					partitionOffsetManager.MarkOffset(msg.Offset+1, "")
+					return nil
+				}),
+			)
+			partitionConsumer := NewPartitionConsumer(messageHandler, o.client, o.topic, partition, nextOffset)
+			if err := partitionConsumer.Consume(ctx); err != nil {
+				glog.Warningf("consumer partition %d for topic %s failed: %v", partition, o.topic, err)
 				cancel()
 				return
-			}
-			defer partitionConsumer.Close()
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case err := <-partitionConsumer.Errors():
-					glog.Warningf("while consume topic %s go error: %v", o.topic, err)
-					cancel()
-					return
-				case msg := <-partitionConsumer.Messages():
-					if glog.V(4) {
-						glog.Infof("handle message in topic %s with content: %s", o.topic, string(msg.Value))
-					}
-					if err := o.messageHandler.ConsumeMessage(ctx, msg); err != nil {
-						glog.V(1).Infof("consume message %d in topic %s failed: %v", msg.Offset, o.topic, err)
-						continue
-					}
-					partitionOffsetManager.MarkOffset(msg.Offset+1, "")
-					glog.V(3).Infof("message %d consumed from partition %d in topic %s successful", msg.Offset, partition, o.topic)
-				}
 			}
 		}(partition)
 	}

@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/DataDog/zstd v1.4.1 // indirect
 	github.com/Shopify/sarama v1.23.1
+	github.com/bborbe/run v0.0.0-20190723085027-d2ca2c9a7ee0 // indirect
 	github.com/boltdb/bolt v1.3.1
 	github.com/certifi/gocertifi v0.0.0-20190506164543-d2eda7129713 // indirect
 	github.com/eapache/go-resiliency v1.2.0 // indirect
@@ -28,7 +29,7 @@ require (
 	golang.org/x/lint v0.0.0-20190409202823-959b441ac422 // indirect
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/sys v0.0.0-20190730183949-1393eb018365 // indirect
-	golang.org/x/tools v0.0.0-20190730215328-ed3277de2799 // indirect
+	golang.org/x/tools v0.0.0-20190826234050-71894ab67ee3 // indirect
 	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
 	gopkg.in/jcmturner/gokrb5.v7 v7.3.0 // indirect
 )

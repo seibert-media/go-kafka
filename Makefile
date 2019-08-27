@@ -38,7 +38,7 @@ format:
 	@find . -type f -name '*.go' -not -path './vendor/*' -exec goimports -w "{}" +
 
 test:
-	go test -cover -race $(shell go list ./... | grep -v /vendor/)
+	go test -p=1 -cover -race $(shell go list ./... | grep -v /vendor/)
 
 check: lint vet errcheck
 
