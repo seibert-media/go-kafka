@@ -36,7 +36,7 @@ func (m *messageHandlerHook) ConsumeMessage(ctx context.Context, msg *sarama.Con
 		}
 	}
 	err := m.messageHandler.ConsumeMessage(ctx, msg)
-	if m.preMessageHandler != nil {
+	if m.postMessageHandler != nil {
 		if err := m.postMessageHandler.ConsumeMessage(ctx, msg); err != nil {
 			glog.Warningf("post message handler failed: %v", err)
 		}
