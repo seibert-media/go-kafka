@@ -59,7 +59,7 @@ var _ = Describe("MessageHandlerHook", func() {
 		It("calls subMessageHandler", func() {
 			Expect(subMessageHandler.ConsumeMessageCallCount()).To(Equal(1))
 		})
-		It("calls postMessageHandler", func() {
+		It("calls postMessageHandler not", func() {
 			Expect(postMessageHandler.ConsumeMessageCallCount()).To(Equal(0))
 		})
 	})
@@ -77,7 +77,7 @@ var _ = Describe("MessageHandlerHook", func() {
 		It("calls subMessageHandler", func() {
 			Expect(subMessageHandler.ConsumeMessageCallCount()).To(Equal(1))
 		})
-		It("calls postMessageHandler", func() {
+		It("calls postMessageHandler not", func() {
 			Expect(postMessageHandler.ConsumeMessageCallCount()).To(Equal(0))
 		})
 	})
@@ -89,7 +89,7 @@ var _ = Describe("MessageHandlerHook", func() {
 		It("return no error", func() {
 			Expect(err).To(BeNil())
 		})
-		It("calls preMessageHandler", func() {
+		It("calls preMessageHandler not", func() {
 			Expect(preMessageHandler.ConsumeMessageCallCount()).To(Equal(0))
 		})
 		It("calls subMessageHandler", func() {

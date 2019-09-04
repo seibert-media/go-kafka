@@ -32,7 +32,7 @@ type messageHandlerHook struct {
 func (m *messageHandlerHook) ConsumeMessage(ctx context.Context, msg *sarama.ConsumerMessage) error {
 	if m.preMessageHandler != nil {
 		if err := m.preMessageHandler.ConsumeMessage(ctx, msg); err != nil {
-			glog.Warningf("post message handler failed: %v", err)
+			glog.Warningf("pre message handler failed: %v", err)
 		}
 	}
 	err := m.messageHandler.ConsumeMessage(ctx, msg)
