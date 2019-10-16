@@ -13,7 +13,7 @@ require (
 	github.com/getsentry/raven-go v0.2.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/protobuf v1.3.2 // indirect
-	github.com/google/addlicense v0.0.0-20190510175307-22550fa7c1b0 // indirect
+	github.com/google/addlicense v0.0.0-20190907113143-be125746c2c4 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/kisielk/errcheck v1.2.0 // indirect
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2 // indirect
@@ -26,10 +26,10 @@ require (
 	github.com/prometheus/procfs v0.0.3 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20190706150252-9beb055b7962 // indirect
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
-	golang.org/x/lint v0.0.0-20190409202823-959b441ac422 // indirect
+	golang.org/x/lint v0.0.0-20190930215403-16217165b5de // indirect
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/sys v0.0.0-20190730183949-1393eb018365 // indirect
-	golang.org/x/tools v0.0.0-20190903025054-afe7f8212f0d // indirect
+	golang.org/x/tools v0.0.0-20191015211201-9c6d90b5a7d0 // indirect
 	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
 	gopkg.in/jcmturner/gokrb5.v7 v7.3.0 // indirect
 )

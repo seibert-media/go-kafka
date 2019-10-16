@@ -13,7 +13,11 @@ import (
 	"github.com/golang/glog"
 )
 
-func SendErrorsToSentry(messageHandler MessageHandler) MessageHandler {
+type RavenClient interface {
+	CaptureErrorAndWait(err error, tags map[string]string, interfaces ...raven.Interface) string
+}
+
+func SendErrorsToSentry(messageHandler MessageHandler, ravenClient RavenClient) MessageHandler {
 	return MessageHandlerFunc(func(ctx context.Context, msg *sarama.ConsumerMessage) error {
 		if err := messageHandler.ConsumeMessage(ctx, msg); err != nil {
 			data := DataFromError(
@@ -33,7 +37,7 @@ func SendErrorsToSentry(messageHandler MessageHandler) MessageHandler {
 				glog.Warningf("consume message %d in topic %s failed: %v", msg.Offset, msg.Topic, err)
 			}
 
-			raven.CaptureErrorAndWait(
+			ravenClient.CaptureErrorAndWait(
 				err,
 				data,
 			)
